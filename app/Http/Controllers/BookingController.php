@@ -39,8 +39,8 @@ class BookingController extends Controller
 
     public function create()
     {
-        $vehicles = Vehicle::where('is_active', true)->get();
-        $drivers = Driver::where('is_active', true)->get();
+        $vehicles = Vehicle::whereRaw('is_active = true')->get();
+        $drivers = Driver::whereRaw('is_active = true')->get();
         $approvers = User::where('role', 'approver')->get();
         
         return view('bookings.create', compact('vehicles', 'drivers', 'approvers'));
@@ -112,8 +112,8 @@ class BookingController extends Controller
                 ->with('error', 'Only pending bookings can be edited.');
         }
 
-        $vehicles = Vehicle::where('is_active', true)->get();
-        $drivers = Driver::where('is_active', true)->get();
+        $vehicles = Vehicle::whereRaw('is_active = true')->get();
+        $drivers = Driver::whereRaw('is_active = true')->get();
         $approvers = User::where('role', 'approver')->get();
         
         return view('bookings.edit', compact('booking', 'vehicles', 'drivers', 'approvers'));

@@ -5,6 +5,10 @@ use Illuminate\Http\Request;
 
 define('LARAVEL_START', microtime(true));
 
+// Increase execution time for database connections
+set_time_limit(60);
+ini_set('default_socket_timeout', 30);
+
 // Determine if the application is in maintenance mode...
 if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
     require $maintenance;

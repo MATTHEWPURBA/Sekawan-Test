@@ -18,6 +18,22 @@ Route::get('/dashboard', [DashboardController::class, 'index'])
     ->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    // Debug route (remove after fixing)
+    Route::get('/debug/user', function () {
+        $user = auth()->user();
+        return [
+            'authenticated' => auth()->check(),
+            'user_id' => $user->id ?? null,
+            'user_email' => $user->email ?? null,
+            'user_name' => $user->name ?? null,
+            'user_role' => $user->role ?? 'NULL',
+            'role_type' => gettype($user->role ?? null),
+            'isAdmin()' => $user->isAdmin() ?? false,
+            'role === "admin"' => ($user->role ?? null) === 'admin',
+            'raw_user' => $user->toArray(),
+        ];
+    })->name('debug.user');
+    
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

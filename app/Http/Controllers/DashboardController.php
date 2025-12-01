@@ -12,7 +12,7 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $totalVehicles = Vehicle::where('is_active', true)->count();
+        $totalVehicles = Vehicle::whereRaw('is_active = true')->count();
         $totalBookings = Booking::count();
         $pendingBookings = Booking::where('status', 'pending')->count();
         $approvedBookings = Booking::where('status', 'approved')->count();
@@ -20,11 +20,11 @@ class DashboardController extends Controller
 
         // Vehicle usage chart data (last 6 months)
         $vehicleUsage = Booking::select(
-            DB::raw('DATE_FORMAT(created_at, "%Y-%m") as month'),
+            DB::raw("to_char(created_at, 'YYYY-MM') as month"),
             DB::raw('COUNT(*) as count')
         )
         ->where('created_at', '>=', now()->subMonths(6))
-        ->groupBy('month')
+        ->groupBy(DB::raw("to_char(created_at, 'YYYY-MM')"))
         ->orderBy('month')
         ->get();
 
@@ -36,11 +36,11 @@ class DashboardController extends Controller
 
         // Monthly booking trends
         $monthlyTrends = Booking::select(
-            DB::raw('DATE_FORMAT(start_date, "%Y-%m") as month'),
+            DB::raw("to_char(start_date, 'YYYY-MM') as month"),
             DB::raw('COUNT(*) as count')
         )
         ->where('start_date', '>=', now()->subMonths(6))
-        ->groupBy('month')
+        ->groupBy(DB::raw("to_char(start_date, 'YYYY-MM')"))
         ->orderBy('month')
         ->get();
 

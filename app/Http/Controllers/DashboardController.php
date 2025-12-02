@@ -28,11 +28,29 @@ class DashboardController extends Controller
         ->orderBy('month')
         ->get();
 
-        // Vehicle type usage
-        $vehicleTypeUsage = Booking::join('vehicles', 'bookings.vehicle_id', '=', 'vehicles.id')
-            ->select('vehicles.type', DB::raw('COUNT(*) as count'))
-            ->groupBy('vehicles.type')
-            ->get();
+        // Vehicle type usage - show all vehicle types even if they have no bookings
+        // Get all distinct vehicle types from active vehicles
+        $allVehicleTypes = Vehicle::whereRaw('is_active = true')
+            ->distinct()
+            ->pluck('type')
+            ->toArray();
+        
+        // Count bookings for each vehicle type
+        $vehicleTypeUsage = collect($allVehicleTypes)->map(function ($type) {
+            $count = Booking::join('vehicles', 'bookings.vehicle_id', '=', 'vehicles.id')
+                ->where('vehicles.type', $type)
+                ->whereRaw('vehicles.is_active = true')
+                ->count();
+            
+            // Format the type name for display (angkutan_orang -> Angkutan Orang)
+            $formattedType = str_replace('_', ' ', $type);
+            $formattedType = ucwords($formattedType);
+            
+            return (object) [
+                'type' => $formattedType,
+                'count' => (int) $count
+            ];
+        });
 
         // Monthly booking trends
         $monthlyTrends = Booking::select(
